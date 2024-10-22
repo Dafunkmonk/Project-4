@@ -28,3 +28,8 @@ test-output:	src/dijkstras
 test-memory:	src/dijkstras
 	@echo Testing memory...
 	@[ `valgrind --leak-check=full ./src/dijkstras < data/input1.txt 2>&1 | grep ERROR | awk '{print $$4}'` = 0 ]
+
+rebuild:	clear clean dijkstras 
+
+clear:		
+	clear
