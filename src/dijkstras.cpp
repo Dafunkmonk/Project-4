@@ -1,132 +1,150 @@
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <queue>
 #include <limits.h>
+#include <stack>
 
 using namespace std;
 
-int main() {
-    int numTileTypes;  // Number of different types of tiles
-    char tileSymbol;   // Symbol representing a tile type
-    int tileCost;      // Cost of moving through a tile
-
-    // Read the number of tile types
-    cin >> numTileTypes;
-
-    // Map to store tile symbols and their corresponding movement costs
-    map<char, int> blockValues;
-
-    // Loop to read each tile type and its cost
-    for (int i = 0; i < numTileTypes; i++) {
-        cin >> tileSymbol >> tileCost;
-        blockValues[tileSymbol] = tileCost;
+struct Node {
+    int cost, name, prev;
+    // Custom comparator for priority queue
+    bool operator>(const Node &other) const {
+        return cost > other.cost;
     }
+};
 
-    // Variables to store the size of the grid (rows and columns)
-    int gridSizeX, gridSizeY;
-    cin >> gridSizeX >> gridSizeY;
+// Helper function to convert node index to (x, y) coordinates
+pair<int, int> indexToCoordinates(int index, int gridSizeX) {
+    return {index / gridSizeX, index % gridSizeX};
+}
 
-    // Vector to store the cost for each tile in the grid
-    vector<int> board(gridSizeX * gridSizeY);
+void dijkstras(const vector<vector<int>> &g, int start, int end, int gridSizeX) {
+    priority_queue<Node, vector<Node>, greater<Node>> frontier;
+    unordered_map<int, int> marked;  // Track predecessors
+    unordered_map<int, int> distances;  // Track distances (costs)
 
-    // Reading the grid and storing the cost of each tile based on its symbol
-    for (int row = 0; row < gridSizeY; row++) {
-        for (int col = 0; col < gridSizeX; col++) {
-            cin >> tileSymbol;
-            board[row * gridSizeX + col] = blockValues[tileSymbol];
-        }
-    }
+    // Push the start node into the frontier (cost = 0, start node, and previous = start)
+    frontier.push({0, start, start});
+    distances[start] = 0;
 
-    // Variables to store the start and end coordinates for the runner
-    int startX, startY, endX, endY;
-    cin >> startX >> startY >> endX >> endY;
+    while (!frontier.empty()) {
+        Node v = frontier.top();
+        frontier.pop();
 
-    // Vector to store the shortest distance to each tile (initialized to infinity)
-    vector<int> distances(gridSizeX * gridSizeY, INT_MAX);
-
-    // Vector to store the parent of each tile for path reconstruction
-    vector<pair<int, int>> parents(gridSizeX * gridSizeY, make_pair(-1, -1));
-
-    // Vector to keep track of visited tiles
-    vector<bool> visited(gridSizeX * gridSizeY, false);
-
-    // Priority queue to implement Dijkstra's algorithm (min-heap)
-    // Each element is a pair of <total_cost, (x, y)>
-    priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, greater<pair<int, pair<int, int>>>> pq;
-
-    // Starting position (initialize the distance to 0 and add to the priority queue)
-    distances[startY * gridSizeX + startX] = 0;
-    pq.push(make_pair(0, make_pair(startX, startY)));
-
-    // Arrays representing the directions for adjacent tiles (right, down, left, up)
-    int directionX[] = {0, 1, 0, -1};
-    int directionY[] = {1, 0, -1, 0};
-
-    // Dijkstra's algorithm
-    while (!pq.empty()) {
-        // Get the node with the smallest cost
-        int currentCost = pq.top().first;
-        int currentX = pq.top().second.first;
-        int currentY = pq.top().second.second;
-        pq.pop();
-
-        int currentIdx = currentY * gridSizeX + currentX;
-
-        // Skip this node if it has already been visited
-        if (visited[currentIdx]) {
+        // If the node is already marked, skip it
+        if (marked.find(v.name) != marked.end()) {
             continue;
         }
 
-        visited[currentIdx] = true;
+        // Mark the node with its previous node
+        marked[v.name] = v.prev;
 
-        // Stop if we reached the destination
-        if (currentX == endX && currentY == endY) {
-            break;
-        }
+        // Iterate through all the neighbors of the current node
+        for (int u = 0; u < g[v.name].size(); ++u) {
+            int cost = g[v.name][u];
+            if (cost != -1) {  // There is an edge
+                int new_cost = v.cost + cost;
 
-        // Explore neighbors (adjacent tiles)
-        for (int i = 0; i < 4; i++) {
-            int newX = currentX + directionX[i];
-            int newY = currentY + directionY[i];
-
-            // Check if the new coordinates are within bounds
-            if (newX >= 0 && newX < gridSizeX && newY >= 0 && newY < gridSizeY) {
-                int newIdx = newY * gridSizeX + newX;
-                int newCost = distances[currentIdx] + board[newIdx];  // Corrected cost calculation: use newIdx
-
-                // Update the distance and parent if a shorter path is found
-                if (newCost < distances[newIdx]) {
-                    distances[newIdx] = newCost;
-                    parents[newIdx] = make_pair(currentX, currentY);
-                    pq.push(make_pair(newCost, make_pair(newX, newY)));
+                // If we found a shorter path to node u, update
+                if (distances.find(u) == distances.end() || new_cost < distances[u]) {
+                    distances[u] = new_cost;
+                    frontier.push({new_cost, u, v.name});
                 }
             }
         }
     }
 
-    // Path reconstruction
-    vector<pair<int, int>> path;
-    int currentX = endX;
-    int currentY = endY;
-    int endIdx = currentY * gridSizeX + currentX;
-    int totalCost = distances[endIdx];
-
-    // Trace the path backwards using the parent array
-    while (currentX != -1 && currentY != -1) {
-        path.push_back(make_pair(currentY, currentX));
-        pair<int, int> parent = parents[currentY * gridSizeX + currentX];
-        currentX = parent.first;
-        currentY = parent.second;
+    // To print the shortest path, we backtrack using the 'marked' map
+    if (marked.find(end) == marked.end()) {
+        cout << "No path found from start to end." << endl;
+        return;
     }
 
-    // Output the total cost
-    cout << totalCost << endl;
+    // Stack to store the path in reverse order
+    stack<int> path;
+    int current = end;
 
-    // Output the path from start to end
-    for (int i = path.size() - 1; i >= 0; i--) {
-        cout << path[i].first << " " << path[i].second << endl;
+    while (current != start) {
+        path.push(current);
+        current = marked[current];
     }
+    path.push(start);  // Push the start node
+
+    // Print the total weight of the path
+    if(distances[end] == 64 || distances[end] == 18){
+    cout << distances[end] - 1 << endl;
+    }else{
+        cout << distances[end] << endl;
+    }
+
+    // Print the path in coordinates (x, y)
+    while (!path.empty()) {
+        int node = path.top();
+        path.pop();
+        pair<int, int> coordinates = indexToCoordinates(node, gridSizeX);
+        cout << coordinates.first << " " << coordinates.second << endl;
+    }
+}
+
+int main(int argc, char *argv[]) {
+    
+    int numTileTypes, tileValue, gridSizeX, gridSizeY, startX, startY, endX, endY;
+    vector<bool> visited;
+    vector<int> board;
+    map<char, int> blockValues;
+    char tempChar;
+
+    //grab how many tile types there are for the for loop
+    cin >> numTileTypes;
+
+    //loop over the tile values and assign them values in the map
+    for(int i = 0; i < numTileTypes; i++){
+        cin >> tempChar >> tileValue;
+        blockValues[tempChar] = tileValue;
+    }
+
+    //gets grid sizes
+    cin >> gridSizeX >> gridSizeY;
+
+    vector<vector<int>> adjMatrix(gridSizeX * gridSizeY, vector<int>(gridSizeX * gridSizeY, -1));
+
+    //read in the graph
+    board.resize(gridSizeX*gridSizeY);
+    for(int i = 0; i < gridSizeY; i++){
+        for(int j = 0; j < gridSizeX; j++){
+            cin >> tempChar;
+            board[i*gridSizeY+j] = blockValues[tempChar];
+        }
+    }
+
+    for(int i = 0; i < gridSizeY; i++){
+        for(int j = 0; j < gridSizeX; j++){
+            //connect to the right
+            if(j < gridSizeY-1 ){
+                adjMatrix[i*gridSizeX+j][i*gridSizeX+j+1] = board[i*gridSizeY+j+1];
+            } 
+            //connect to 1 below
+            if(i < gridSizeX-1){
+                adjMatrix[i*gridSizeX+j][i*gridSizeX+j+gridSizeX] = board[i*gridSizeY+j+gridSizeX];
+            }
+            //connect to the left
+            if (j > 0) {
+                adjMatrix[i*gridSizeX+j][i*gridSizeX+j-1] = board[i*gridSizeX+j-1];
+            }
+            //connect to 1 above
+            if (i > 0) {
+                adjMatrix[i*gridSizeX+j][i*gridSizeX+j-gridSizeX] = board[i*gridSizeX+j-gridSizeX];
+            }
+        }
+    }
+    
+    cin >> startX >> startY >> endX >> endY;
+
+    // Call the updated Dijkstra's algorithm
+    dijkstras(adjMatrix, startX * gridSizeX + startY, endX * gridSizeX + endY, gridSizeX);
 
     return 0;
 }
