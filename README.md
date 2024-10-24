@@ -12,7 +12,7 @@ Project 04: Path Finding
 | 1000 | 140.0775     | 78,738,080   |
 
 
-Kevin:
+Kevin Canas:
 
 How did you represent the map as a graph?
 The map was represented as an adjacency matrix, where each node corresponds to a cell on the grid. Each node is connected to its neighboring cells with a weighted edge.
@@ -25,7 +25,7 @@ As the size of the map increases, both the execution time and memory usage grow 
 
 Contributions: Most of the work was done together in person or over discord using liveshare. Ahmed did most of the bug checking/fixing for dijkstras while Kevin worked on generate_map.cpp
 
-Ahmed:
+Ahmed Ghazi:
 How did you represent the map as a graph?
 We used an adjacency matrix to representh the graph.
 
