@@ -1,7 +1,7 @@
 Project 04: Path Finding
 ========================
 
-| CXR  | Elapsed Time | Memory Usage |
+|  N   | Elapsed Time | Memory Usage |
 |------|--------------|--------------|
 | 10   | .0013        | 134,464      |
 | 20   | .0023        | 168,256      |
