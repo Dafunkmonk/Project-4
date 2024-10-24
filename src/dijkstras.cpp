@@ -1,3 +1,8 @@
+// dijsktras.cpp
+// Group members: Ahmed Ghazi, Kevin Canas
+// Description: This program takes an input file with a board of weights, turns those weights into a 
+// graph, then applies dijkstras algorithm on that graph from start coordinates to end coordinates.
+
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -5,7 +10,7 @@
 
 using namespace std;
 
-struct Node {
+struct Node {   //struct for each node in the graph
     int cost;    
     int index;   
     int prev;    
@@ -14,11 +19,6 @@ struct Node {
         return cost > other.cost; 
     }
 };
-
-
-pair<int, int> indexToCoordinates(int index, int gridSizeX) {   //convert 1D index into 2D grid coordinates 
-    return make_pair(index / gridSizeX, index % gridSizeX);
-}
 
 void dijkstra(const vector<vector<int>> &graph, int start, int end, int gridSizeX) {
     
@@ -41,7 +41,7 @@ void dijkstra(const vector<vector<int>> &graph, int start, int end, int gridSize
  
         predecessor[currentNode.index] = currentNode.prev;   //mark the current node and store its predecessor
 
-        for (int neighbor = 0; neighbor < graph[currentNode.index].size(); ++neighbor) {    //explore all neighbors of the current node
+        for (int neighbor = 0; neighbor < graph[currentNode.index].size(); neighbor++) {    //explore all neighbors of the current node
             int edgeCost = graph[currentNode.index][neighbor];
 
             if (edgeCost != -1) {
@@ -53,11 +53,6 @@ void dijkstra(const vector<vector<int>> &graph, int start, int end, int gridSize
                 }
             }
         }
-    }
-
-    if (predecessor.find(end) == predecessor.end()) {   //backtrack to find the shortest path if end was reached
-        cout << "No path found from start to end." << endl;
-        return;
     }
 
     vector<int> path;  
@@ -74,12 +69,15 @@ void dijkstra(const vector<vector<int>> &graph, int start, int end, int gridSize
         cout << distances[end] << endl;
     }
 
-    for (int i = path.size() - 1; i >= 0; --i) {    //print the path in grid coordinates
-        pair<int, int> coordinates = indexToCoordinates(path[i], gridSizeX);
+    for (int i = path.size() - 1; i >= 0; i--) {    //print the path in grid coordinates
+        pair<int, int> coordinates;
+        coordinates.first =  path[i] / gridSizeX;
+        coordinates.second = path[i] % gridSizeX;
         cout << coordinates.first << " " << coordinates.second << endl;
     }
 }
 
+// Main Execution
 int main() {
     int numTileTypes, tileValue, gridSizeX, gridSizeY;
     int startX, startY, endX, endY;
@@ -131,7 +129,7 @@ int main() {
 
     cin >> startX >> startY >> endX >> endY;    //read in start and end coordinates
 
-    dijkstra(adjMatrix, startX * gridSizeX + startY, endX * gridSizeX + endY, gridSizeX); //convert grid coordinates to 1D indices and run dijkstras
+    dijkstra(adjMatrix, startX * gridSizeX + startY, endX * gridSizeX + endY, gridSizeX);   //convert grid coordinates to 1D indices and run dijkstras
 
     return 0;
 }
