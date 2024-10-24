@@ -11,8 +11,8 @@ void generateMap(int N, vector<vector<char>>& map, const vector<char>& tileTypes
 
     srand(time(0));
 
-    for (int i = 0; i < N; ++i) {   //generate random tiles for the map
-        for (int j = 0; j < N; ++j) {
+    for (int i = 0; i < N; i++) {   //generate random tiles for the map
+        for (int j = 0; j < N; j++) {
             map[i][j] = tileTypes[rand() % numTileTypes];
         }
     }
@@ -24,14 +24,14 @@ void saveMapToFile(const string& filename, int N, const vector<char>& tileTypes,
 
     outFile << tileTypes.size() << endl;    //write number of tile types
 
-    for (int i = 0; i < tileTypes.size(); ++i) {    //write each tile type and its value
+    for (int i = 0; i < tileTypes.size(); i++) {    //write each tile type and its value
         outFile << tileTypes[i] << " " << tileValues[i] << endl;
     }
 
     outFile << N << " " << N << endl;  //write the grid dimensions
 
-    for (int i = 0; i < N; ++i) {   //write the map without extra space at the end of each line
-        for (int j = 0; j < N; ++j) {
+    for (int i = 0; i < N; i++) {   //write the map without extra space at the end of each line
+        for (int j = 0; j < N; j++) {
             outFile << map[i][j];
             if (j < N - 1) {
                 outFile << " "; 
