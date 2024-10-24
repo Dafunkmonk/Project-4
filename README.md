@@ -1,30 +1,39 @@
 Project 04: Path Finding
 ========================
 
-This project implements a [Dijkstra's Algorithm] to perform rudimentary path
-finding on a 2D tile-based map.
+| CXR  | Elapsed Time | Memory Usage |
+|------|--------------|--------------|
+| 10   | .0013        | 134,464      |
+| 20   | .0023        | 168,256      |
+| 50   | .0284        | 386,988      |
+| 100  | .4063        | 974,026      |
+| 200  | 6.9225       | 3,225,107    |
+| 500  | 40.4063      | 18,699,438   |
+| 1000 | 140.0775     | 78,738,080   |
 
-[Dijkstra's Algorithm]: https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 
+Kevin:
 
-Input
------
+How did you represent the map as a graph?
+The map was represented as an adjacency matrix, where each node corresponds to a cell on the grid. Each node is connected to its neighboring cells with a weighted edge.
 
-    TILES_N
-    TILE_NAME_0	TILE_COST_0
-    ...
-    TILE_NAME_N-1	TILE_COST_N-1
+What is the complexity of your implementation of Dijkstra's Algorithm?
+The time complexity of our Dijkstra implementation is O(V^2), where V is the number of vertices (N^2 for an NxN map). We used a priority queue  to select the next node with the shortest distance and an adjacency matrix to represent the graph. The memory complexity is O(V^2) for storing the distances, predecessor, and other data structures.
 
-    MAP_ROWS MAP_COLUMNS
-    TILE_0_0    ...
-    ...
+How well does your implementation scale?
+As the size of the map increases, both the execution time and memory usage grow significantly. this is because the number of nodes is N^2 and the number of edges increases accordingly. larger values of N result in longer processing times and higher memory consumption especially when N reaches 500 or 1000.
 
-    TRAVELER_START_ROW TRAVELER_START_COL
-    TRAVELER_END_ROW   TRAVELER_END_COL
+Contributions: Most of the work was done together in person or over discord using liveshare. Ahmed did most of the bug checking/fixing for dijkstras while Kevin worked on generate_map.cpp
 
-Output
-------
+Ahmed:
+How did you represent the map as a graph?
+We used an adjacency matrix to representh the graph.
 
-    Cost
-    [(ROW_0, COL_0), ...]
+What is the complexity of Dijkstra's Algorithm?
+The time complexity of Dijkstra's Algorithm is O(V^2). The space complexity is also O(V^2).
 
+How well does your implementation scale?
+As the number of columns and rows grows, the time and space used becomes very big very fast. This is due to our dijkstras space and time complexity being O(V^2) which scales up very fast.
+
+Contributions: We worked in person and on discord for the entire project. We used a pair programming workflow to finish the project. Kevin wrote the generate_map.cpp since I was the driver seat in the 
+pair programming for most of the project.
